@@ -1,4 +1,5 @@
 #include "tcp.h"
+#include "http.h"
 
 int main() {
     tcp_server server = {0};
@@ -15,7 +16,18 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+    http_request req = {0};
+
+    if (read_http_request(client_fd, &req) != HTTP_PARSE_OK) {
+        debug_log("Failed to read or parse HTTP request");
+        close(client_fd);
+        return 0;
+    }
+
     debug_log("Client connected");
+    debug_log(req.method);
+    debug_log(req.path);
+    debug_log(req.protocol);
 
     close(client_fd);
     close(server.socket_fd);
