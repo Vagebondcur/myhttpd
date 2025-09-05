@@ -25,6 +25,7 @@ int main() {
         close(client_fd);
         return 0;
     }
+    printf("%s %s %s\n", req.method, req.path, req.protocol);
 
     if (parse_http_headers(req.buffer, &req) != HTTP_PARSE_OK) {
         debug_log("Failed to read or parse HTTP headers");
