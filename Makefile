@@ -5,6 +5,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 INCLUDE_DIR = include
 BIN_DIR = bin
+TESTS_DIR = tests
 
 TARGET = $(BIN_DIR)/myhttpd
 
@@ -27,3 +28,13 @@ $(BIN_DIR):
 
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	find $(TESTS_DIR) ! -name "*.c" ! -name "*.h" ! -name "$(TESTS_DIR)" -delete 2>/dev/null || true
+
+test: $(TESTS_DIR)/test_headers
+	./$(TESTS_DIR)/test_headers
+
+$(TESTS_DIR)/test_headers: $(TESTS_DIR)/headers.c $(SRC_DIR)/http.c $(INCLUDE_DIR)/http.h | $(TESTS_DIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTS_DIR)/headers.c $(SRC_DIR)/http.c
+
+$(TESTS_DIR):
+	mkdir -p $(TESTS_DIR)

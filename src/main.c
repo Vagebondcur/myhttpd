@@ -16,6 +16,8 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+    debug_log("[+] Client connected");
+
     http_request req = {0};
 
     if (read_http_request(client_fd, &req) != HTTP_PARSE_OK) {
@@ -24,10 +26,20 @@ int main() {
         return 0;
     }
 
-    debug_log("Client connected");
-    debug_log(req.method);
-    debug_log(req.path);
-    debug_log(req.protocol);
+    if (parse_http_headers(req.buffer, &req) != HTTP_PARSE_OK) {
+        debug_log("Failed to read or parse HTTP headers");
+        close(client_fd);
+        return 0;
+    }
+
+    printf("Parsed HTTP headers:\n");
+    for (size_t i = 0; i < req.header_count; i++) {
+        printf("%s: %s\n", req.headers[i].key, req.headers[i].value);
+    }
+
+
+    free_http_headers(&req);
+    
 
     close(client_fd);
     close(server.socket_fd);
