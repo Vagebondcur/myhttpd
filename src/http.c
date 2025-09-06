@@ -72,3 +72,40 @@ void free_http_headers(http_request *request)
     request->headers = NULL; // for UAF
     request->header_count = 0;
 }
+
+
+
+void init_http_response(http_response *response) 
+{
+    response->status_code = 200; //defaults to 200
+    strncpy(response->reason_phrase, "OK", sizeof(response->reason_phrase) - 1);
+    response->headers = NULL;
+    response->header_count = 0;
+    response->body = NULL;
+    response->body_length = 0;
+} 
+
+void add_http_header(http_response *response, const char *key, const char *value) 
+{
+    response->headers = realloc(response->headers, sizeof(http_header_t) * (response->header_count + 1));
+    if (!response->headers) {
+        perror("Failed to allocate memory for headers");
+        exit(EXIT_FAILURE);
+    }
+
+    strncpy(response->headers[response->header_count].key, key, sizeof(response->headers[response->header_count].key) - 1);
+    strncpy(response->headers[response->header_count].value, value, sizeof(response->headers[response->header_count].value) - 1);
+
+    response->header_count++;
+
+
+    response->header_count++;
+}
+
+
+void free_http_response(http_response *response)
+{
+    free(response->headers);
+    response->headers = NULL; // for UAF
+    response->header_count = 0;
+}

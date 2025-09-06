@@ -19,5 +19,13 @@ int main() {
     }
 
     free_http_headers(&request);
+
+    http_response response = {0};
+
+    add_http_header(&response, "Content-Type", "text/html");
+    add_http_header(&response, "Connection", "close");
+    free_http_response(&response);
+
+
     return 0;
 }

@@ -18,6 +18,8 @@ int main() {
 
     debug_log("[+] Client connected");
 
+    // REQUEST PART
+
     http_request req = {0};
 
     if (read_http_request(client_fd, &req) != HTTP_PARSE_OK) {
@@ -25,8 +27,7 @@ int main() {
         close(client_fd);
         return 0;
     }
-    printf("%s %s %s\n", req.method, req.path, req.protocol);
-
+    
     if (parse_http_headers(req.buffer, &req) != HTTP_PARSE_OK) {
         debug_log("Failed to read or parse HTTP headers");
         close(client_fd);
@@ -34,13 +35,34 @@ int main() {
     }
 
     printf("Parsed HTTP headers:\n");
+    printf("%s %s %s\n", req.method, req.path, req.protocol);
     for (size_t i = 0; i < req.header_count; i++) {
         printf("%s: %s\n", req.headers[i].key, req.headers[i].value);
     }
 
-
     free_http_headers(&req);
+
+
+
+    // RESPONSE PART
+
+    http_response res = {0};
+
+    init_http_response(&res);
+    add_http_header(&res, "Content-Type", "text/html");
+    add_http_header(&res, "Connection", "close");
     
+    printf("HTTP Response Headers:\n");
+    printf("%d %s\n", res.status_code, res.reason_phrase);
+    for (size_t i = 0; i < res.header_count; i++) {
+
+        printf("%s: %s\n", res.headers[i].key, res.headers[i].value);
+
+    }
+
+    free_http_response(&res);
+
+
 
     close(client_fd);
     close(server.socket_fd);
