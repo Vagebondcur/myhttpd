@@ -51,18 +51,20 @@ int main() {
     init_http_response(&res);
     add_http_header(&res, "Content-Type", "text/html");
     add_http_header(&res, "Connection", "close");
-    
+
     printf("HTTP Response Headers:\n");
-    printf("%d %s\n", res.status_code, res.reason_phrase);
+    printf("%s %s\n", res.status_code, res.reason_phrase);
     for (size_t i = 0; i < res.header_count; i++) {
 
         printf("%s: %s\n", res.headers[i].key, res.headers[i].value);
 
     }
 
+
+
     free_http_response(&res);
 
-
+    send(client_fd, &res, sizeof(res), 0);
 
     close(client_fd);
     close(server.socket_fd);

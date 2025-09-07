@@ -10,21 +10,30 @@ int main() {
         "Accept: */*\r\n"
         "\r\n";
 
-    http_request request = {0};
-    parse_http_headers(raw_request, &request);
+    http_request req = {0};
+    parse_http_headers(raw_request, &req);
 
     printf("Parsed HTTP Headers:\n");
-    for (size_t i = 0; i < request.header_count; i++) {
-        printf("%s: %s\n", request.headers[i].key, request.headers[i].value);
+    for (size_t i = 0; i < req.header_count; i++) {
+        printf("%s: %s\n", req.headers[i].key, req.headers[i].value);
     }
 
-    free_http_headers(&request);
+    free_http_headers(&req);
 
-    http_response response = {0};
+    http_response res = {0};
 
-    add_http_header(&response, "Content-Type", "text/html");
-    add_http_header(&response, "Connection", "close");
-    free_http_response(&response);
+    add_http_header(&res, "Content-Type", "text/html");
+    add_http_header(&res, "Connection", "close");
+
+    printf("HTTP Response Headers:\n");
+    printf("%s %s\n", res.status_code, res.reason_phrase);
+    for (size_t i = 0; i < res.header_count; i++) {
+
+        printf("%s: %s\n", res.headers[i].key, res.headers[i].value);
+
+    }
+
+    free_http_response(&res);
 
 
     return 0;
