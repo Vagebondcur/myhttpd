@@ -97,9 +97,6 @@ void add_http_header(http_response *response, const char *key, const char *value
     strncpy(response->headers[response->header_count].value, value, sizeof(response->headers[response->header_count].value) - 1);
 
     response->header_count++;
-
-
-    response->header_count++;
 }
 
 
