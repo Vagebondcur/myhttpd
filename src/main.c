@@ -60,9 +60,6 @@ int main() {
 
     }
 
-    res.body = "lol";
-    res.body_length = 4;
-
     send_http_response(client_fd, &res);
 
     free_http_response(&res);
