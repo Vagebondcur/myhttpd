@@ -106,3 +106,56 @@ void free_http_response(http_response *response)
     response->headers = NULL; // for UAF
     response->header_count = 0;
 }
+
+char *construct_http_response(const http_response *response, size_t *response_length) {
+    size_t buffer_size = 1024;
+    char *buffer = malloc(buffer_size);
+    if (!buffer) {
+        perror("Failed to allocate memory for response buffer");
+        exit(EXIT_FAILURE);
+    }
+    size_t offset = snprintf(buffer, buffer_size, "HTTP/1.1 %d %s\r\n", response->status_code, response->reason_phrase);
+    for (size_t i = 0; i < response->header_count; i++) {
+        size_t header_length = snprintf(NULL, 0, "%s: %s\r\n", response->headers[i].key, response->headers[i].value);
+        while (offset + header_length + 1 > buffer_size) {
+            buffer_size *= 2;
+            buffer = realloc(buffer, buffer_size);
+            if (!buffer) {
+                perror("Failed to reallocate memory for response buffer");
+                exit(EXIT_FAILURE);
+            }
+        }
+        offset += snprintf(buffer + offset, buffer_size - offset, "%s: %s\r\n", response->headers[i].key, response->headers[i].value);
+    }
+    offset += snprintf(buffer + offset, buffer_size - offset, "\r\n");
+    if (response->body) {
+        while (offset + response->body_length + 1 > buffer_size) {
+            buffer_size *= 2;
+            buffer = realloc(buffer, buffer_size);
+            if (!buffer) {
+                perror("Failed to reallocate memory for response buffer");
+                exit(EXIT_FAILURE);
+            }
+        }
+        memcpy(buffer + offset, response->body, response->body_length);
+        offset += response->body_length;
+    }
+    *response_length = offset;
+    return buffer;
+
+}
+
+void send_http_response(int client_fd, const http_response *response) {
+    size_t response_length = 0;
+    char *response_data = construct_http_response(response, &response_length);
+    size_t total_sent = 0;
+    while (total_sent < response_length) {
+        ssize_t bytes_sent = send(client_fd, response_data + total_sent, response_length - total_sent, 0);
+        if (bytes_sent <= 0) {
+            perror("Failed to send response");
+            break;
+        }
+        total_sent += bytes_sent;
+    }
+    free(response_data);
+}

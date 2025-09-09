@@ -60,9 +60,12 @@ int main() {
 
     }
 
-    // free_http_response(&res);
+    res.body = "lol";
+    res.body_length = 4;
 
-    send(client_fd, &res, sizeof(res), 0);
+    send_http_response(client_fd, &res);
+
+    free_http_response(&res);
 
     close(client_fd);
     close(server.socket_fd);

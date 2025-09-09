@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <sys/socket.h>
 
 
 #define HTTP_MAX_REQUEST_LEN 8192*4
@@ -52,5 +53,7 @@ void free_http_headers(http_request *request);
 void init_http_response(http_response *response);
 void add_http_header(http_response *response, const char *key, const char *value);
 void free_http_response(http_response *response);
+void send_http_response(int client_fd, const http_response *response);
+
 
 #endif // HTTP_H
